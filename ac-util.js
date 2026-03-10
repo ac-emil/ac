@@ -76,3 +76,5 @@ const footerYear = document.querySelectorAll(".current-year");
 for (let i = 0; i < footerYear.length; i++) {
     footerYear[i].textContent = new Date().getFullYear();
 }
+
+
