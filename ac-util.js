@@ -37,9 +37,42 @@ $("[data-lenis-toggle]").on("click", function () {
 });
 
 
+
+// FORM UTILITIES
+const dateInput = document.querySelectorAll('.form-date');
+const phoneInput = document.querySelectorAll('.form-phone');
+
+dateInput.forEach(input => {
+    input.addEventListener('focus', () => {
+        input.type = 'date';
+    });
+});
+
+phoneInput.forEach(input => {
+    input.setAttribute('pattern', '[0-9]{3}-[0-9]{3}-[0-9]{4}');
+
+    input.addEventListener('input', () => {
+        const value = input.value.replace(/\D/g, '');
+        let formattedValue = '';
+
+        if (value.length > 0) {
+            formattedValue += value.substring(0, 3);
+        }
+        if (value.length > 3) {
+            formattedValue += '-' + value.substring(3, 6);
+        }
+        if (value.length > 6) {
+            formattedValue += '-' + value.substring(6, 10);
+        }
+
+        input.value = formattedValue;
+    });
+});
+
+
+
 // FOOTER YEAR UPDATE
 const footerYear = document.querySelectorAll(".current-year");
 for (let i = 0; i < footerYear.length; i++) {
     footerYear[i].textContent = new Date().getFullYear();
 }
-
