@@ -103,7 +103,7 @@ window.addEventListener('DOMContentLoaded', function () {
     const navWrapper = document.querySelector('.nav-wrapper');
     navOpenBtn.forEach(btn => {
         btn.addEventListener('click', () => {
-            navWrapper.classList.add('active');
+            navWrapper?.classList.add('active');
         });
     });
 
