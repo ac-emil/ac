@@ -1,11 +1,14 @@
-// Navigation Utility Script
+// ============================================================================
+// NAVIGATION UTILITY SCRIPT
+// ============================================================================
+
 window.addEventListener("DOMContentLoaded", () => {
-    // ─── Config ───────────────────────────────────────────────────────────
+    
+    // ─── MEGA MENU & DROPDOWN MENU SYSTEM ────────────────────────────────
     const MENU_CONFIGS = [
         { selector: ".mega-menu", closeTrigger: ".mega-menu-close" },
         { selector: ".dropdown-menu", closeTrigger: null },
     ];
-    // ─────────────────────────────────────────────────────────────────────
 
     function getMenuParts(menu, selector) {
         const base = selector.replace(".", "");
@@ -23,7 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
         setShow([menu, parts.label, parts.content], true);
     }
 
-    function closeMenu(menu, parts, config) {
+    function closeMenu(menu, parts) {
         setShow([menu, parts.label, parts.content], false);
     }
 
@@ -31,17 +34,12 @@ window.addEventListener("DOMContentLoaded", () => {
         return menu.classList.contains("show");
     }
 
-    // Closes all open menus of ANY type across the entire page, except:
-    //   - the menu itself
-    //   - any descendant of the menu (children)
-    //   - any ancestor of the menu (parents)
     function closeOtherMenus(menu) {
         MENU_CONFIGS.forEach(config => {
             document.querySelectorAll(`${config.selector}.show`).forEach(other => {
-                if (other === menu) return; // skip self
-                if (menu.contains(other)) return; // skip children
-                if (other.contains(menu)) return; // skip parents
-
+                if (other === menu) return;
+                if (menu.contains(other)) return;
+                if (other.contains(menu)) return;
                 const parts = getMenuParts(other, config.selector);
                 closeMenu(other, parts);
             });
@@ -72,11 +70,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function initCloseTriggers(config) {
         if (!config.closeTrigger) return;
-
         document.querySelectorAll(config.closeTrigger).forEach(trigger => {
             const parentMenu = trigger.closest(config.selector);
             if (!parentMenu) return;
-
             trigger.addEventListener("click", () => {
                 const parts = getMenuParts(parentMenu, config.selector);
                 closeMenu(parentMenu, parts);
@@ -84,23 +80,16 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ─── Init ─────────────────────────────────────────────────────────────
     MENU_CONFIGS.forEach(config => {
         document.querySelectorAll(config.selector).forEach(menu => initMenu(menu, config));
         initCloseTriggers(config);
     });
 
-
-   
-
-});
-
-
-
-window.addEventListener('DOMContentLoaded', function () {
+    // ─── MOBILE NAVIGATION ────────────────────────────────────────────────
     const navOpenBtn = document.querySelectorAll('.mobile-menu-btn');
     const navCloseBtn = document.querySelectorAll('.nav-close');
     const navWrapper = document.querySelector('.nav-wrapper');
+
     navOpenBtn.forEach(btn => {
         btn.addEventListener('click', () => {
             navWrapper?.classList.add('active');
@@ -109,90 +98,121 @@ window.addEventListener('DOMContentLoaded', function () {
 
     navCloseBtn.forEach(btn => {
         btn.addEventListener('click', () => {
-            navWrapper.classList.remove('active');
+            navWrapper?.classList.remove('active');
         });
     });
+
+    // ─── TOGGLE ELEMENTS ──────────────────────────────────────────────────
+    function toggleElementClass(element, className) {
+        element?.classList.toggle(className);
+    }
+
+    const elementsCanToggle = document.querySelectorAll(".toggle-element");
+    elementsCanToggle.forEach(element => {
+        const trigger = element.querySelector(".toggle-trigger");
+        const closeTriggers = element.querySelectorAll(".toggle-close-trigger");
+        const content = element.querySelector(".toggle-content");
+
+        if (!trigger || !content) return;
+
+        trigger.addEventListener("click", () => {
+            // Close other open toggles
+            elementsCanToggle.forEach(other => {
+                if (other !== element && other.classList.contains("show")) {
+                    const otherContent = other.querySelector(".toggle-content");
+                    otherContent?.classList.remove("show");
+                    other.classList.remove("show");
+                }
+            });
+            // Toggle current element
+            toggleElementClass(element, "show");
+            toggleElementClass(content, "show");
+        });
+
+        closeTriggers.forEach(closeTrigger => {
+            closeTrigger.addEventListener("click", () => {
+                toggleElementClass(element, "show");
+                toggleElementClass(content, "show");
+            });
+        });
+    });
+
+    // ─── FORM UTILITIES ───────────────────────────────────────────────────
+    const dateInput = document.querySelectorAll('.form-date');
+    const phoneInput = document.querySelectorAll('.form-phone');
+
+    dateInput.forEach(input => {
+        input.addEventListener('focus', () => {
+            input.type = 'date';
+        });
+    });
+
+    phoneInput.forEach(input => {
+        input.setAttribute('pattern', '[0-9]{3}-[0-9]{3}-[0-9]{4}');
+        input.addEventListener('input', () => {
+            const value = input.value.replace(/\D/g, '');
+            let formattedValue = '';
+
+            if (value.length > 0) {
+                formattedValue += value.substring(0, 3);
+            }
+            if (value.length > 3) {
+                formattedValue += '-' + value.substring(3, 6);
+            }
+            if (value.length > 6) {
+                formattedValue += '-' + value.substring(6, 10);
+            }
+
+            input.value = formattedValue;
+        });
+    });
+
+    // ─── FOOTER YEAR UPDATE ───────────────────────────────────────────────
+    const footerYear = document.querySelectorAll(".current-year");
+    footerYear.forEach(element => {
+        element.textContent = new Date().getFullYear();
+    });
 });
 
 
+// ============================================================================
+// LENIS SMOOTH SCROLL (Load Event)
+// ============================================================================
 
-// TOGGLE ELEMENTS
-function toggleElementClass(e, t) { e ? e.classList.toggle(t) : console.error(`Element with selector '${e}' not found.`) } const elementsCanToggle = document.querySelectorAll(".toggle-element"); window.addEventListener("DOMContentLoaded", () => { elementsCanToggle.forEach(e => { const t = e.querySelector(".toggle-trigger"), l = e.querySelectorAll(".toggle-close-trigger"), o = e.querySelector(".toggle-content"); t.addEventListener("click", () => { elementsCanToggle.forEach(t => { if (t !== e && t.classList.contains("show")) { const e = t.querySelector(".toggle-content"); e.classList.toggle("show"), t.classList.toggle("show") } }), toggleElementClass(e, "show"), toggleElementClass(o, "show") }), l.forEach(t => { t.addEventListener("click", () => { toggleElementClass(e, "show"), toggleElementClass(o, "show") }) }) }) });
+window.addEventListener("load", () => {
+    if (typeof Webflow !== 'undefined' && Webflow.env("editor") === undefined) {
+        const lenis = new Lenis({
+            lerp: 0.1,
+            wheelMultiplier: 0.7,
+            gestureOrientation: "vertical",
+            normalizeWheel: false,
+            smoothTouch: false,
+        });
 
-
-// LENIS SMOOTH SCROLL
-let lenis;
-if (Webflow.env("editor") === undefined) {
-    lenis = new Lenis({
-        lerp: 0.1,
-        wheelMultiplier: 0.7,
-        gestureOrientation: "vertical",
-        normalizeWheel: false,
-        smoothTouch: false,
-    });
-    function raf(time) {
-        lenis.raf(time);
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
         requestAnimationFrame(raf);
+
+        // jQuery handlers - only after lenis is initialized
+        if (typeof $ !== 'undefined') {
+            $("[data-lenis-start]").on("click", function () {
+                lenis.start();
+            });
+
+            $("[data-lenis-stop]").on("click", function () {
+                lenis.stop();
+            });
+
+            $("[data-lenis-toggle]").on("click", function () {
+                $(this).toggleClass("stop-scroll");
+                if ($(this).hasClass("stop-scroll")) {
+                    lenis.stop();
+                } else {
+                    lenis.start();
+                }
+            });
+        }
     }
-    requestAnimationFrame(raf);
-}
-
-$("[data-lenis-start]").on("click", function () {
-    lenis.start();
 });
-
-$("[data-lenis-stop]").on("click", function () {
-    lenis.stop();
-});
-
-$("[data-lenis-toggle]").on("click", function () {
-    $(this).toggleClass("stop-scroll");
-    if ($(this).hasClass("stop-scroll")) {
-        lenis.stop();
-    } else {
-        lenis.start();
-    }
-});
-
-
-
-// FORM UTILITIES
-const dateInput = document.querySelectorAll('.form-date');
-const phoneInput = document.querySelectorAll('.form-phone');
-
-dateInput.forEach(input => {
-    input.addEventListener('focus', () => {
-        input.type = 'date';
-    });
-});
-
-phoneInput.forEach(input => {
-    input.setAttribute('pattern', '[0-9]{3}-[0-9]{3}-[0-9]{4}');
-
-    input.addEventListener('input', () => {
-        const value = input.value.replace(/\D/g, '');
-        let formattedValue = '';
-
-        if (value.length > 0) {
-            formattedValue += value.substring(0, 3);
-        }
-        if (value.length > 3) {
-            formattedValue += '-' + value.substring(3, 6);
-        }
-        if (value.length > 6) {
-            formattedValue += '-' + value.substring(6, 10);
-        }
-
-        input.value = formattedValue;
-    });
-});
-
-
-
-// FOOTER YEAR UPDATE
-const footerYear = document.querySelectorAll(".current-year");
-for (let i = 0; i < footerYear.length; i++) {
-    footerYear[i].textContent = new Date().getFullYear();
-}
-
-
