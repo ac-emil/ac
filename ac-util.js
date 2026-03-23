@@ -213,6 +213,12 @@ window.addEventListener("load", () => {
                     lenis.start();
                 }
             });
+
+            $("[data-lenis-hover-stop]").on("mouseenter", function () {
+                lenis.stop();
+            }).on("mouseleave", function () {
+                lenis.start();
+            });
         }
     }
 });
