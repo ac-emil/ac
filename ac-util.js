@@ -180,23 +180,77 @@ window.addEventListener("DOMContentLoaded", () => {
 // ============================================================================
 
 window.addEventListener("load", () => {
-    if (typeof Webflow !== 'undefined' && Webflow.env("editor") === undefined) {
+    if (
+        typeof Webflow !== "undefined" &&
+        Webflow.env("editor") === undefined
+    ) {
+        /*
+         * Check whether an element has its own native scroll area.
+         */
+        function isScrollable(element) {
+            if (!(element instanceof HTMLElement)) return false;
+
+            const style = window.getComputedStyle(element);
+
+            const hasVerticalScroll =
+                /(auto|scroll|overlay)/.test(style.overflowY) &&
+                element.scrollHeight > element.clientHeight;
+
+            const hasHorizontalScroll =
+                /(auto|scroll|overlay)/.test(style.overflowX) &&
+                element.scrollWidth > element.clientWidth;
+
+            return hasVerticalScroll || hasHorizontalScroll;
+        }
+
+        /*
+         * Check the element itself and all of its parents.
+         *
+         * This is important because the wheel event target might
+         * be a child inside your toggle content.
+         */
+        function hasScrollableParent(element) {
+            let current = element;
+
+            while (current && current !== document.body) {
+                if (isScrollable(current)) {
+                    return true;
+                }
+
+                current = current.parentElement;
+            }
+
+            return false;
+        }
+
         const lenis = new Lenis({
             lerp: 0.1,
             wheelMultiplier: 0.7,
             gestureOrientation: "vertical",
             normalizeWheel: false,
             smoothTouch: false,
+
+            /*
+             * Let native browser scrolling handle nested
+             * scrollable elements.
+             */
+            prevent: (node) => {
+                return hasScrollableParent(node);
+            }
         });
 
         function raf(time) {
             lenis.raf(time);
             requestAnimationFrame(raf);
         }
+
         requestAnimationFrame(raf);
 
-        // jQuery handlers - only after lenis is initialized
-        if (typeof $ !== 'undefined') {
+        /*
+         * jQuery handlers - only after Lenis is initialized.
+         */
+        if (typeof $ !== "undefined") {
+
             $("[data-lenis-start]").on("click", function () {
                 lenis.start();
             });
@@ -207,6 +261,7 @@ window.addEventListener("load", () => {
 
             $("[data-lenis-toggle]").on("click", function () {
                 $(this).toggleClass("stop-scroll");
+
                 if ($(this).hasClass("stop-scroll")) {
                     lenis.stop();
                 } else {
@@ -214,11 +269,13 @@ window.addEventListener("load", () => {
                 }
             });
 
-            $("[data-lenis-hover-stop]").on("mouseenter", function () {
-                lenis.stop();
-            }).on("mouseleave", function () {
-                lenis.start();
-            });
+            $("[data-lenis-hover-stop]")
+                .on("mouseenter", function () {
+                    lenis.stop();
+                })
+                .on("mouseleave", function () {
+                    lenis.start();
+                });
         }
     }
 });
