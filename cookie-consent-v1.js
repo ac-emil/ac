@@ -6,6 +6,8 @@
 (function () {
     "use strict";
 
+     console.log("[Cookie Consent] Script execution started");
+
     var STORAGE_KEY = "site-cookie-consent";
     var CONSENT_VERSION = 1;
     var CONSENT_DAYS = 180;
